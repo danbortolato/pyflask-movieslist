@@ -1,7 +1,37 @@
 from flask_wtf import FlaskForm
-from wtforms import (IntegerField, StringField, SubmitField, TextAreaField,
-                     URLField)
-from wtforms.validators import InputRequired, NumberRange
+from wtforms import (IntegerField, PasswordField, StringField, SubmitField,
+                     TextAreaField, URLField)
+from wtforms.validators import (Email, EqualTo, InputRequired, Length,
+                                NumberRange)
+
+
+class RegisterForm(FlaskForm):
+    email = StringField("Email", validators=[InputRequired(), Email()])
+
+    password = PasswordField(
+        "Password",
+        validators=[
+            InputRequired(),
+            Length(
+                min=4,
+                max=20,
+                message="Your password must be between 4 and 20 characters.",
+            ),
+        ],
+    )
+
+    confirm_password = PasswordField(
+        "Confirm Password",
+        validators=[
+            InputRequired(),
+            EqualTo(
+                "password",
+                message="This password did not match the one in the password.",
+            ),
+        ],
+    )
+
+    submit = SubmitField("Register")
 
 
 class MovieForm(FlaskForm):
