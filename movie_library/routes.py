@@ -5,7 +5,7 @@ from dataclasses import asdict
 from flask import (Blueprint, current_app, redirect, render_template, request,
                    session, url_for)
 
-from movie_library.forms import MovieForm
+from movie_library.forms import ExtendedMovieForm, MovieForm
 from movie_library.models import Movie
 
 pages = Blueprint(
@@ -49,6 +49,28 @@ def add_movie():
 def movie(_id: str):
     movie = Movie(**current_app.db.movie.find_one({"_id": _id}))
     return render_template("movie_details.html", movie=movie)
+
+
+@pages.route("/edit/<string:_id>", methods=["GET", "POST"])
+def edit_movie(_id: str):
+    movie = Movie(**current_app.db.movie.find_one({"_id": _id}))
+    form = ExtendedMovieForm(obj=movie)
+    if form.validate_on_submit():
+        movie.title = form.title.data
+        movie.director = form.director.data
+        movie.year = form.year.data
+        movie.cast = form.cast.data
+        movie.series = form.series.data
+        movie.tags = form.tags.data
+        movie.description = form.description.data
+        movie.video_link = form.video_link.data
+
+        current_app.db.movie.update_one(
+            {"_id": movie._id},
+            {"$set": asdict(movie)}
+            )
+        return redirect(url_for(".movie", _id=movie._id))
+    return render_template("movie_form.html", movie=movie, form=form)
 
 
 @pages.get("/movie/<string:_id>/watch")
