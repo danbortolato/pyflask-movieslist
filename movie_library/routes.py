@@ -9,5 +9,5 @@ pages = Blueprint(
 def index():
     return render_template(
         "index.html",
-        title="Movies Watchlist",
+        title="Movies List",
     )
